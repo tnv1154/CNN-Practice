@@ -10,7 +10,7 @@ img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 #print(img_gray.shape)
 
 class Conv2d:
-    def __init__(self, input, kernelSize, numOfKernel = 8, padding = 0, stride = 1):
+    def __init__(self, input, numOfKernel = 8,  kernelSize = 3, padding = 0, stride = 1):
         self.input = np.pad(input, ((padding, padding), (padding, padding)), "constant")
         self.stride = stride
         self.kernel = np.random.randn(numOfKernel, kernelSize, kernelSize)
@@ -41,15 +41,20 @@ class Relu:
     def operate(self):
         for row in range(self.input.shape[0]):
             for col in range(self.input.shape[1]):
+                self.result[row, col] = 0.1 * self.input[row, col] if self.input[row, col] < 0 else self.input[row, col]
+
+        return self.result
 
 
 
-conv2d = Conv2d(img_gray, 3)
-img_gray_conv2d = conv2d.operate()
+img_gray_conv2d = Conv2d(img_gray, 8, 3, 0, 1).operate()
+for i in range(8):
+    plt.subplots(2, 4, i + 1)
+    plt.imshow(img_gray_conv2d[i], cmap="gray")
 
-plt.imshow(img_gray_conv2d, cmap="gray")
+"""plt.imshow(img_gray_conv2d, cmap="gray")
 plt.show()
-
+"""
 
 
 
