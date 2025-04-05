@@ -28,9 +28,20 @@ class Conv2d:
                 yield row, col, roi
 
     def operate(self):
-        for layer
-
+        for layer in range(self.kernel.shape[0]):
+            for row, col, roi in self.getROI():
+                self.result[row, col, layer] = np.sum(roi * self.kernel[layer])
         return self.result
+
+class Relu:
+    def __init__(self, input):
+        self.input = input
+        self.result = np.zeros((self.input.shape[0], self.input.shape[1]))
+
+    def operate(self):
+        for row in range(self.input.shape[0]):
+            for col in range(self.input.shape[1]):
+
 
 
 conv2d = Conv2d(img_gray, 3)
