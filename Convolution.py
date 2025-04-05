@@ -10,22 +10,25 @@ img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 #print(img_gray.shape)
 
 class Conv2d:
-    def __init__(self, input, kernelSize):
-        self.input = input
-        self.height, self.width = input.shape
-        self.kernel = np.random.randn(kernelSize, kernelSize)
-        self.result = np.zeros((self.height - kernelSize + 1, self.width - kernelSize + 1))
+    def __init__(self, input, kernelSize, numOfKernel = 8, padding = 0, stride = 1):
+        self.input = np.pad(input, ((padding, padding), (padding, padding)), "constant")
+        self.stride = stride
+        self.kernel = np.random.randn(numOfKernel, kernelSize, kernelSize)
+        self.result = np.zeros( (int((self.input.shape[0] - self.kernel.shape[1]) / self.stride) + 1,
+                                 int((self.input.shape[1] - self.kernel.shape[2]) / self.stride) + 1,
+                                self.kernel.shape[0]))
 
     #Vùng quan tâm
     def getROI(self):
-        for row in range(self.height - self.kernel.shape[0] + 1):
-            for col in range(self.width - self.kernel.shape[1] + 1):
-                roi = self.input[row: row + self.kernel.shape[0], col : col + self.kernel.shape[1]]
+        for row in range(int((self.input.shape[0] - self.kernel.shape[1]) / self.stride) + 1):
+            for col in range(int((self.input.shape[1] - self.kernel.shape[2]) / self.stride) + 1):
+                #roi = self.input[row: row + self.kernel.shape[0], col : col + self.kernel.shape[1]]
+                roi = self.input[row * self.stride : row * self.stride + self.kernel.shape[1],
+                                 col * self.stride : col * self.stride + self.kernel.shape[2]]
                 yield row, col, roi
 
     def operate(self):
-        for row, col, roi in self.getROI():
-            self.result[row, col] = np.sum(roi * self.kernel)
+        for layer
 
         return self.result
 
