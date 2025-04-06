@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from statsmodels.sandbox.panel.sandwich_covariance_generic import kernel
 
+np.random.seed(42)
+
 img =cv2.imread("Thang_1.jpg")
 img = cv2.resize(img, (500, 500))
 img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -36,34 +38,45 @@ class Conv2d:
 class Relu:
     def __init__(self, input):
         self.input = input
-        self.result = np.zeros((self.input.shape[0], self.input.shape[1]))
+        self.result = np.zeros((self.input.shape[0], self.input.shape[1], self.input.shape[2]))
 
     def operate(self):
-        for row in range(self.input.shape[0]):
-            for col in range(self.input.shape[1]):
-                self.result[row, col] = 0.1 * self.input[row, col] if self.input[row, col] < 0 else self.input[row, col]
+        for layer in range(self.input.shape[2]):
+            for row in range(self.input.shape[0]):
+                for col in range(self.input.shape[1]):
+                    self.result[row, col, layer] = 0  if self.input[row, col, layer] < 0 else self.input[row, col, layer]
+
+        return self.result
+
+class LeakyRelu:
+    def __init__(self, input):
+        self.input = input
+        self.result = np.zeros((self.input.shape[0], self.input.shape[1], self.input.shape[2]))
+
+    def operate(self):
+        for layer in range(self.input.shape[2]):
+            for row in range(self.input.shape[0]):
+                for col in range(self.input.shape[1]):
+                    self.result[row, col, layer] = 0.1 * self.input[row, col, layer] if self.input[row, col, layer] < 0 else self.input[row, col, layer]
 
         return self.result
 
 
+img_gray_conv2d = Conv2d(img_gray, 16, 3, 0, 1).operate()
+#img_gray_conv2d_relu = Relu(img_gray_conv2d).operate()
+img_gray_conv2d_leakyrelu = LeakyRelu(img_gray_conv2d).operate()
 
-img_gray_conv2d = Conv2d(img_gray, 8, 3, 0, 1).operate()
-for i in range(8):
-    plt.subplots(2, 4, i + 1)
-    plt.imshow(img_gray_conv2d[i], cmap="gray")
+fig = plt.figure(figsize=(10, 10))
+for i in range(16):
+    plt.subplot(4, 4, i + 1)
+    plt.imshow(img_gray_conv2d_leakyrelu[:, :, i], cmap="gray")
+    plt.axis('off')
+plt.savefig("img_gray_conv2d_relu.png")
+plt.show()
 
 """plt.imshow(img_gray_conv2d, cmap="gray")
 plt.show()
 """
-
-
-
-
-
-
-
-
-
 
 
 """def conv2d(input, kernelSize):
